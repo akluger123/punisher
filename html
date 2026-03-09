@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Study Tour Justice System</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6fb;
+text-align:center;
+padding:20px;
+}
+
+.container{
+background:white;
+max-width:500px;
+margin:auto;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input,select,button{
+width:90%;
+padding:12px;
+margin:10px;
+font-size:16px;
+}
+
+button{
+background:#2c7be5;
+color:white;
+border:none;
+border-radius:6px;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td,th{
+border-bottom:1px solid #ddd;
+padding:8px;
+}
+
+#result{
+font-weight:bold;
+margin-top:15px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>⚖️ Study Tour Justice System</h2>
+
+<input id="name" placeholder="Name">
+
+<select id="infraction">
+<option value="">Select Infraction</option>
+<option>Late to Bus</option>
+<option>Phone During Activity</option>
+<option>Disruptive Behavior</option>
+<option>Missed Curfew</option>
+</select>
+
+<button onclick="submitInfraction()">Submit</button>
+
+<div id="result"></div>
+
+<h3>Infraction Leaderboard</h3>
+
+<table id="leaderboard">
+<tr>
+<th>Name</th>
+<th>Infractions</th>
+</tr>
+</table>
+
+</div>
+
+<script>
+
+const API_URL="PASTE_YOUR_SCRIPT_URL_HERE"
+
+const punishments=[
+"Loss of next free time",
+"Cleanup duty after next meal",
+"Earlier curfew tomorrow",
+"Assist guide next stop",
+"Phone confiscated for next activity"
+];
+
+const escalations=[
+"1 hour loss of free time",
+"Full evening free time revoked",
+"Assigned extra cleanup duties",
+"Leader disciplinary meeting"
+];
+
+async function submitInfraction(){
+
+const name=document.getElementById("name").value
+const infraction=document.getElementById("infraction").value
+
+if(!name || !infraction){
+alert("Enter name and infraction")
+return
+}
+
+const leaderboard=await fetch(API_URL).then(r=>r.json())
+
+const count=leaderboard[name]||0
+
+let punishment
+
+if(count>=3){
+punishment=escalations[Math.floor(Math.random()*escalations.length)]
+}else{
+punishment=punishments[Math.floor(Math.random()*punishments.length)]
+}
+
+document.getElementById("result").innerHTML=
+"Punishment: "+punishment
+
+await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify({
+name:name,
+infraction:infraction,
+punishment:punishment
+})
+})
+
+loadLeaderboard()
+
+}
+
+async function loadLeaderboard(){
+
+const data=await fetch(API_URL).then(r=>r.json())
+
+let table=document.getElementById("leaderboard")
+
+table.innerHTML="<tr><th>Name</th><th>Infractions</th></tr>"
+
+for(const name in data){
+
+table.innerHTML+=
+`<tr><td>${name}</td><td>${data[name]}</td></tr>`
+
+}
+
+}
+
+loadLeaderboard()
+
+</script>
+
+</body>
+
+</html>
